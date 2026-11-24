@@ -23,16 +23,25 @@ import java.util.Optional;
 
 public class MainController {
 
+
+
     @FXML private ComboBox<String> tipoCombo;
     @FXML private TextField patenteField;
     @FXML private TextField horasField;
     @FXML private CheckBox convenioCheck;
+
+    @FXML private TextField buscarPatenteField;
+    @FXML private TextField nuevasHorasField;
+
     @FXML private TableView<Estadia> estadiasTable;
+    @FXML private TableColumn<Estadia, Number> idCol;
     @FXML private TableColumn<Estadia, String> tipoCol;
     @FXML private TableColumn<Estadia, String> patenteCol;
     @FXML private TableColumn<Estadia, Number> horasCol;
     @FXML private TableColumn<Estadia, String> costoCol;
+
     @FXML private Label mensajeLabel;
+    @FXML private Label estadisticasLabel;
 
     private final ObservableList<Estadia> filas =
             FXCollections.observableArrayList();
@@ -50,16 +59,26 @@ public class MainController {
         tipoCombo.getItems().addAll("Auto", "Moto");
         tipoCombo.getSelectionModel().selectFirst();
 
-        tipoCombo.valueProperty().addListener((obs, anterior, actual) ->
+        //REVISAR
+    tipoCombo.valueProperty().addListener((obs, anterior, actual) ->
                 actualizarConvenio());
         actualizarConvenio();
 
+        idCol.setCellValueFactory(dato -> new ReadOnlyLongWrapper(dato.getValue().getId()));
         tipoCol.setCellValueFactory(dato -> new ReadOnlyStringWrapper(dato.getValue().getTipo()));
         patenteCol.setCellValueFactory(dato -> new ReadOnlyStringWrapper(dato.getValue().getPatente()));
         horasCol.setCellValueFactory(dato -> new ReadOnlyIntegerWrapper(dato.getValue().getHoras()));
         costoCol.setCellValueFactory(dato -> new ReadOnlyStringWrapper(formatearCosto(dato.getValue().calcularCosto())));
 
         estadiasTable.setItems(filas);
+
+        //REVISAR
+        estadiasTable.getSelectionModel().selectedItemProperty()
+                .addListener((obs, anterior, actual) ->{
+                    if (anterior != null) {
+                        nuevasHorasField.setText(String.valueOf(anterior.getHoras()));
+                    }
+                });
 
         try {
             repository.cargar();
@@ -84,6 +103,8 @@ public class MainController {
             String tipo = tipoCombo.getValue();
             String patente = patenteField.getText().trim();
 
+            int horas = Integer.parseInt(nuevasHorasField.getText().trim());
+
             if (tipo == null) {
                 throw new IllegalArgumentException("Seleccione Auto o Moto.");
             }
@@ -91,7 +112,6 @@ public class MainController {
                 throw new IllegalArgumentException("La patente es obligatoria.");
             }
 
-            int horas = Integer.parseInt(horasField.getText().trim());
 
             Estadia nueva;
             if ("Auto".equals(tipo)) {
@@ -158,3 +178,15 @@ public class MainController {
         return "$" + formatoPesos.format(costo);
     }
 }
+
+//actualizarHoras
+
+//buscarPorPatente
+
+//mostrarTodos
+
+//mostrarEstadisticas
+
+//mostrarTodosSinMensaje
+
+//indicarEstadisticasPendientes
